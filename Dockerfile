@@ -41,17 +41,14 @@ RUN sudo apt install -y \
     libxext6 \
     libgl1-mesa-glx
 
-# RUN sudo apt-get install -y nvidia-cuda-toolkit
+RUN sudo apt-get install -y nvidia-cuda-toolkit
 
 RUN python3 -m pip install --upgrade pip --user
-RUN python3 -m pip install 'tensorflow[and-cuda]==2.19.0'
+RUN pip install -U flwr
 RUN pip install -U tensorboard
 RUN pip install -U scikit-learn
 RUN pip install -U matplotlib
 RUN pip install -U pandas
-RUN pip install -U opencv-python
-RUN python3 -m pip install "flwr[simulation]"
-RUN pip install -U flwr-datasets[vision]
 
 USER $USERNAME
 
