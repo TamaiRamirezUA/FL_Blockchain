@@ -5,8 +5,8 @@ import json
 from datetime import datetime
 from datetime import timedelta
 import shutil
-
-from .task import PROJECT_PATH, NUM_CLIENTS
+import numpy as np
+from .task import PROJECT_PATH, NUM_CLIENTS, NON_IID, ALPHA
 import tensorflow as tf  # Asegúrate de importar TensorFlow
 import os
 import time
@@ -24,15 +24,6 @@ class CustomFedAvg(FedAvg):
         self.results_to_save = {}
         self.start_time = time.time()
         self.num_rounds = num_rounds
-        # TensorBoard summary writer
-        if os.path.isdir(f"{PROJECT_PATH}/NC_{NUM_CLIENTS}/logs/tensorboard/"):
-            shutil.rmtree(f"{PROJECT_PATH}/NC_{NUM_CLIENTS}/logs/tensorboard/")
-        if os.path.isdir(f"{PROJECT_PATH}/NC_{NUM_CLIENTS}/logs/fit/"):
-            shutil.rmtree(f"{PROJECT_PATH}/NC_{NUM_CLIENTS}/logs/fit/")
-            
-        current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
-        log_dir = f"{PROJECT_PATH}/NC_{NUM_CLIENTS}/logs/tensorboard/{current_time}"
-        self.tb_writer = tf.summary.create_file_writer(log_dir)
 
     """ This code has been developed by Tamai Ramírez Gordillo (GitHub: TamaiRamirezUA)"""
     def aggregate_fit(
@@ -65,7 +56,7 @@ class CustomFedAvg(FedAvg):
         # Inicializar acumuladores
         loss_total = 0.0
         metrics_accum = {}
-
+        test_accuracies = []
         for _, res in results:
             weight = res.num_examples / total_examples
             loss_total += res.loss * weight
@@ -74,36 +65,36 @@ class CustomFedAvg(FedAvg):
                 if key not in metrics_accum:
                     metrics_accum[key] = 0.0
                 metrics_accum[key] += value * weight
+                if key=="test_accuracy":
+                    test_accuracies.append(value * weight)
 
+        CV = np.std(test_accuracies)/np.mean(test_accuracies) # coeficiente de variación (CV)
+        
         # Guardar resultados para esta ronda
-        round_results = {"loss": loss_total, **metrics_accum}
+        round_results = {"loss": loss_total, **metrics_accum, "CV": CV}
         self.results_to_save[server_round] = round_results
 
+        # Directorio de guardado
+        if NON_IID:
+            save_path=f"{PROJECT_PATH}/NC_{NUM_CLIENTS}/Non-IID/{ALPHA}"
+        else:
+            save_path=f"{PROJECT_PATH}/NC_{NUM_CLIENTS}/IID"
         # Guardar en JSON
-        with open(f"{PROJECT_PATH}/NC_{NUM_CLIENTS}/results.json", "w") as f:
+        with open(f"{save_path}/results_global.json", "w") as f:
             json.dump(self.results_to_save, f, indent=4)
-
-        # TensorBoard
-        with self.tb_writer.as_default():
-            for key, value in round_results.items():
-                tf.summary.scalar(name=key, data=value, step=server_round)
-            self.tb_writer.flush()
 
         # Mostrar en consola
         print(f"[Round {server_round}] Aggregated Metrics:")
         for k, v in round_results.items():
             print(f"  {k}: {v:.4f}")
-
+            
         if server_round == self.num_rounds:  # última ronda
             elapsed = time.time() - self.start_time
             elapsed_td = timedelta(seconds=int(elapsed))
-            with open(f"{PROJECT_PATH}/NC_{NUM_CLIENTS}/Training_time.txt", 'w', encoding='utf-8') as archivo:
+            with open(f"{save_path}/Training_time.txt", 'w', encoding='utf-8') as archivo:
                 archivo.write(f"Tiempo Total de entrenamiento: {elapsed_td}")
             print(f"⏱ Tiempo total de entrenamiento: {elapsed_td}")
 
         
 
         return loss_total, metrics_accum
-
-    def __del__(self):
-        self.tb_writer.close()

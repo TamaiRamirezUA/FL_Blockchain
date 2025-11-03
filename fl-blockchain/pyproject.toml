@@ -34,11 +34,13 @@ clientapp = "fl_blockchain.client_app:app"
 # Custom config values accessible via `context.run_config`
 [tool.flwr.app.config]
 num-server-rounds = 5
-local-epochs = 7
+local-epochs = 10
 batch-size = 32
 verbose = true
 project-path = "/workspace/fl-blockchain/fl_blockchain"
-num_clients = 6
+num_clients = 8
+non_iid=true
+alpha=1.0
 
 
 # Default federation to use when running the app
@@ -47,7 +49,7 @@ default = "local-simulation"
 
 # Local simulation federation with 10 virtual SuperNodes
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 6
+options.num-supernodes = 8
 
 # Remote federation example for use with SuperLink
 # [tool.flwr.federations.remote-federation]
