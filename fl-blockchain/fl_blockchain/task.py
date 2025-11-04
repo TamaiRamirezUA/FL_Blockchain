@@ -54,31 +54,35 @@ ALPHA = toml_config["tool"]["flwr"]["app"]["config"]["alpha"]
 def load_model():
     model = tf.keras.models.Sequential([
         # Bloque 1: 32 filtros
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(128, 128, 3), kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
+        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(128, 128, 3)),
+        tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
         tf.keras.layers.MaxPooling2D((2, 2)),
-        tf.keras.layers.Dropout(0.4),
+        tf.keras.layers.Dropout(0.2),
         
         # Bloque 2: 64 filtros
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
         tf.keras.layers.MaxPooling2D((2, 2)),
+        tf.keras.layers.Dropout(0.25),
         
         # Bloque 3: 128 filtros
-        tf.keras.layers.Conv2D(128, (3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
-        tf.keras.layers.Conv2D(128, (3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
+        tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
         tf.keras.layers.MaxPooling2D((2, 2)),
+        tf.keras.layers.Dropout(0.3),
 
-        # # Bloque 4: 256 filtros
-        tf.keras.layers.Conv2D(256, (3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
-        tf.keras.layers.Conv2D(256, (3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
+        # Bloque 4: 256 filtros
+        tf.keras.layers.Conv2D(256, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(256, (3, 3), activation='relu'),
         tf.keras.layers.MaxPooling2D((2, 2)),
+        tf.keras.layers.Dropout(0.50),
 
         # Capas densas
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(512, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
+        tf.keras.layers.Dropout(0.50),
         tf.keras.layers.Dense(256, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
-        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dropout(0.50),
 
         # Capa de salida
         tf.keras.layers.Dense(4, activation='softmax')
@@ -180,10 +184,10 @@ def load_data(csv_path, img_size=(128, 128), partition_id=0, num_partitions=1,
 
     # --- Balanceo de clases ---
     datagen = ImageDataGenerator(rotation_range=10,
-                                    width_shift_range=0.01,
-                                    height_shift_range=0.01,
-                                    zoom_range=0.01,
-                                    # brightness_range=[0.9, 1.1],
+                                    width_shift_range=0.1,
+                                    height_shift_range=0.1,
+                                    zoom_range=0.1,
+                                    brightness_range=[0.9, 1.1],
                                     horizontal_flip=True)
     
     # unique_labels, counts = np.unique(labels, return_counts=True)
