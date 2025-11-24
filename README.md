@@ -151,17 +151,6 @@ Key frameworks include:
 
 ---
 
-## 📚 **8. Reference**
-
-If you use this repository, please cite the accompanying article (replace with the final citation if needed):
-```
-Collaborative Traffic Event Recognition with Federated Learning:
-A Blockchain-Oriented Framework
-Tamai Ramirez et al., 2025.
-```
-
----
-
 ## 🤝 **Contributions**
 
 Contributions, pull requests, and issue reports are welcome.
@@ -183,7 +172,16 @@ This work was supported by:
 For technical issues or collaboration proposals:
 
 **Tamai Ramírez-Gordillo**
+📧 **tamai.ramirez@ua.es**
 
-📧 **tamai.ramirez@ua.es**  
+**Francisco A. Pujol**
+📧 **fpujol@ua.es**
+
+**Adriana Morejón**
+📧 **adriana.morejon@ua.es**
+
+**Higinio Mora**
+📧 **hmora@ua.es**
+
 🏫 University of Alicante  
-🌐 [https://www.ua.es](https://www.ua.es)
+🌐 [https://www.cloudlab.ua.es](https://www.cloudlab.ua.es)
